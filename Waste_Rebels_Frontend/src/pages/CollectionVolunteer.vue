@@ -146,7 +146,7 @@
           type="submit" 
           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md bg-dark-blue cursor-pointer text-sm font-medium font-main text-white"
         >
-          <span>Add a collection +</span>
+          <span>Add a waste collection +</span>
         </button>
     <!-- Total Collections-->
       <h2 id="collections-heading" class="text-sm font-main font-medium text-dark-blue">
