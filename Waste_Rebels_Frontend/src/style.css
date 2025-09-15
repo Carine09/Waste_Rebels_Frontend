@@ -1,1 +1,21 @@
+@import "tailwindcss";
 
+
+/* Import Font Family */
+@font-face {
+    font-family: "Inter Regular";
+    src: url(./assets/fonts/Inter_18pt-Regular.ttf);
+}
+
+/* Design Tokens */
+@theme {
+    /* Colors */
+    --color-dark-blue: #3d405b;
+    --color-light-blue: #98a2c4;
+    --color-light-green: #709985;
+    --color-dark-gray: #929191;
+    --color-light-gray: #c6c2c2;
+
+    /* Font Families */
+    --font-main: "Inter Regular", serif;
+}
