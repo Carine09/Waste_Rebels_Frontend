@@ -178,12 +178,12 @@ const displayOrder = ['glass', 'cigarettes', 'metal_waste', 'electronic_waste', 
 const totals = ref(Object.fromEntries(Object.keys(TYPES).map(k => [k, 0])));
 
 const icons = {
-  metal: iconMetal,
-  electronic: iconElectronic,
+  metal_waste: iconMetal,
+  electronic_wasre: iconElectronic,
   glass: iconGlass,
   cigarettes: iconCigarette,
   plastic: iconPlastic,
-  other: iconOther,
+  others: iconOther,
 };
 
 // Graph data with consistent color mapping

@@ -50,7 +50,7 @@
                   <label for="metal-input" class="text-sm font-main font-medium text-dark-blue">Metal</label>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <input id="metal-input" v-model="collections.metal" type="number" min="0"
+                  <input id="metal-input" v-model="collections.metal_waste" type="number" min="0"
                     class="w-16 px-2 py-1 text-sm font-main text-dark-blue text-right border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-dark-blue rounded">
                   <span class="text-sm font-main text-dark-blue">kg</span>
                 </div>
@@ -67,13 +67,6 @@
                 <div class="flex items-center space-x-2">
                   <input id="glass-input" v-model="collections.glass" type="number" min="0"
                     class="w-16 px-2 py-1 text-sm font-main text-dark-blue text-right border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-dark-blue rounded">
-                  <input 
-                    id="glass-input"
-                    v-model="collections.glass"
-                    type="number" 
-                    min="0"
-                    class="w-16 px-2 py-1 text-sm font-main text-dark-blue text-right border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-dark-blue rounded"
-                  >
                   <span class="text-sm font-main text-dark-blue">kg</span>
                 </div>
               </div>
@@ -102,7 +95,7 @@
                   <label for="electronic-input" class="text-sm font-main font-medium text-dark-blue">Electronic</label>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <input id="electronic-input" v-model="collections.electronic" type="number" min="0"
+                  <input id="electronic-input" v-model="collections.electronic_waste" type="number" min="0"
                     class="w-16 px-2 py-1 text-sm font-main text-dark-blue text-right border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-dark-blue rounded">
                   <span class="text-sm font-main text-dark-blue">kg</span>
                 </div>
@@ -132,7 +125,7 @@
                   <label for="other-input" class="text-sm font-main font-medium text-dark-blue">Other</label>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <input id="other-input" v-model="collections.other" type="number" min="0"
+                  <input id="other-input" v-model="collections.others" type="number" min="0"
                     class="w-16 px-2 py-1 text-sm font-main text-dark-blue text-right border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-dark-blue rounded">
                   <span class="text-sm font-main text-dark-blue">kg</span>
                 </div>
@@ -184,12 +177,12 @@ import { useRouter } from 'vue-router';
 const auth = useAuthStore();
 const router = useRouter();
 const collections = ref({
-  metal: '',
+  metal_waste: '',
   glass: '',
   plastic: '',
-  electronic: '',
+  electronic_waste: '',
   cigarettes: '',
-  other: ''
+  others: ''
 });
 
 const locations = ref([]);   

@@ -27,14 +27,6 @@
           </h2>
         </section>
 
-        <!-- Focal Point -->
-        <section>
-          <p class="text-sm font-main text-dark-blue">
-            <span class="font-bold">Focal point :</span>
-            {{ collection.user.firstname }} {{ collection.user.lastname }}
-          </p>
-        </section>
-
         <!-- Collection Details -->
         <section>
           <h3 class="sr-only">Waste collection amounts</h3>
