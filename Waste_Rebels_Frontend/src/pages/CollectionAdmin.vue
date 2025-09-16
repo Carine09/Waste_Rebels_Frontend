@@ -92,23 +92,30 @@
         <!-- Waste Collection Content -->
         <section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
           <div class="space-y-4">
+            <!-- Total -->
             <h2 id="collections-heading" class="text-sm font-main font-medium text-dark-blue">
-              Total number of waste collections : {{ collections.length }}
+              Total number of waste collections : {{ filteredCollections.length }}
             </h2>
 
+            <!-- Liste -->
             <h3 class="sr-only">List of waste collections</h3>
             <ul class="space-y-3" role="list">
-              <li v-for="col in collections" :key="col.id">
+              <li v-for="col in filteredCollections" :key="col.id">
                 <article
                   class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
                   <div>
-                    <h4 class="text-sm font-main font-medium text-dark-blue">Collection {{ col.id }}</h4>
+                    <h4 class="text-sm font-main font-medium text-dark-blue">
+                      Collection #{{ col.id }}
+                    </h4>
                     <p class="text-xs font-main text-light-grey">
-                      <span class="sr-only">Location:</span>{{ col.location.city }} -
-                      <time :datetime="col.created_at">{{ col.created_at }}</time>
+                      <span class="sr-only">Location:</span>
+                      {{ col.location?.city || 'Unknown' }} –
+                      <time :datetime="col.created_at">
+                        {{ new Date(col.created_at).toLocaleDateString() }}
+                      </time>
                     </p>
                   </div>
-                  <button type="button" class="p-2 rounded-md cursor-pointer" aria-label="View details">
+                  <button type="button" @click="goToViewCollection(col.id)" class="p-2 rounded-md cursor-pointer" aria-label="View details">
                     <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="See icon" class="w-6 h-6">
                   </button>
                 </article>
@@ -122,8 +129,16 @@
 </template>
 
 <script setup>
+import iconMetal from '../assets/icons/metal_icon_light_green.png';
+import iconElectronic from '../assets/icons/electronic_icon_light_green.png';
+import iconGlass from '../assets/icons/glass_icon_light_green.png';
+import iconCigarette from '../assets/icons/cigarette_icon_light_green.png';
+import iconPlastic from '../assets/icons/plastic_icon_light_green.png';
+import iconOther from '../assets/icons/other_icon_light_green.png';
+
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
+import { computed } from 'vue';
 
 import { Pie, Bar } from 'vue-chartjs';
 import {
@@ -137,14 +152,12 @@ import {
   LinearScale
 } from 'chart.js';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
+import { useRouter, useRoute } from 'vue-router';
 
-import iconMetal from '../assets/icons/metal_icon_light_green.png';
-import iconElectronic from '../assets/icons/electronic_icon_light_green.png';
-import iconGlass from '../assets/icons/glass_icon_light_green.png';
-import iconCigarette from '../assets/icons/cigarette_icon_light_green.png';
-import iconPlastic from '../assets/icons/plastic_icon_light_green.png';
-import iconOther from '../assets/icons/other_icon_light_green.png';
+const router = useRouter();
+const route = useRoute();
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
 
 const auth = useAuthStore();
 const logout = () => auth.logout();
@@ -152,16 +165,18 @@ const logout = () => auth.logout();
 const activeTab = ref('dashboard');
 const selectedCity = ref('');
 const collections = ref([]);
+const collectionId = route.query.id;
+
 
 const TYPES = {
-  glass:             { label: 'Glass',        icon: iconGlass },
-  cigarettes:        { label: 'Cigarettes',   icon: iconCigarette },
-  metal_waste:       { label: 'Metal',        icon: iconMetal },
-  electronic_waste:  { label: 'Electronic',   icon: iconElectronic },
-  plastic:           { label: 'Plastic',      icon: iconPlastic },
-  others:            { label: 'Other',        icon: iconOther },
+  glass: { label: 'Glass', icon: iconGlass },
+  cigarettes: { label: 'Cigarettes', icon: iconCigarette },
+  metal_waste: { label: 'Metal', icon: iconMetal },
+  electronic_waste: { label: 'Electronic', icon: iconElectronic },
+  plastic: { label: 'Plastic', icon: iconPlastic },
+  others: { label: 'Other', icon: iconOther },
 };
-const displayOrder = ['glass','cigarettes','metal_waste','electronic_waste','others','plastic'];
+const displayOrder = ['glass', 'cigarettes', 'metal_waste', 'electronic_waste', 'others', 'plastic'];
 
 const totalsByType = ref(Object.fromEntries(Object.keys(TYPES).map(k => [k, 0])));
 const cities = ref([]);
@@ -171,7 +186,7 @@ const chartData = ref({
   labels: [],
   datasets: [{
     data: [],
-    backgroundColor: ['#4f6d7a','#56a3a6','#c0d6df','#dbe9ee','#7fb685','#dad873']
+    backgroundColor: ['#4f6d7a', '#56a3a6', '#c0d6df', '#dbe9ee', '#7fb685', '#dad873']
   }]
 });
 
@@ -193,7 +208,7 @@ const chartOptions = {
   }
 };
 
-// Données du Bar chart
+// Bar chart data
 const barData = ref({
   labels: [],
   datasets: [{
@@ -228,7 +243,7 @@ function calculateTotals() {
     ? collections.value.filter(c => c.location.city === selectedCity.value)
     : collections.value;
 
-  // Totaux par type
+  // Totals per type
   for (const col of filtered) {
     for (const item of col.waste_items) {
       const key = item.waste_type.value;
@@ -237,16 +252,16 @@ function calculateTotals() {
   }
   totalsByType.value = base;
 
-  // Mise à jour du Pie chart
+  // Update Pie chart
   chartData.value = {
     labels: displayOrder.map(k => TYPES[k].label),
     datasets: [{
       data: displayOrder.map(k => Number(base[k].toFixed(2))),
-      backgroundColor: ['#4f6d7a','#56a3a6','#c0d6df','#dbe9ee','#7fb685','#dad873']
+      backgroundColor: ['#4f6d7a', '#56a3a6', '#c0d6df', '#dbe9ee', '#7fb685', '#dad873']
     }]
   };
 
-  // Mise à jour du Bar chart -> total des collectes par ville
+  // Update Bar chart -> totals per city
   const counts = {};
   for (const col of filtered) {
     const city = col.location?.city || 'Unknown';
@@ -263,6 +278,19 @@ function calculateTotals() {
   };
 }
 
+const filteredCollections = computed(() => {
+  return selectedCity.value
+    ? collections.value.filter(c => c.location?.city === selectedCity.value)
+    : collections.value;
+});
+
+const goToViewCollection = (id) => {
+  router.push({
+    path: '/admin/collection/view',
+    query: { id }
+  });
+};
+
 onMounted(async () => {
   try {
     const res = await fetch('http://localhost:8000/waste/collection', {
@@ -271,11 +299,13 @@ onMounted(async () => {
         Accept: 'application/json'
       }
     });
-    const payload = await res.json();
 
-    const list = Array.isArray(payload) ? payload
-      : payload?.data && Array.isArray(payload.data) ? payload.data
-        : [];
+    const payload = await res.json();
+    console.log("Payload reçu :", payload);
+
+    // Ici on prend payload.data, pas payload
+    const list = Array.isArray(payload.data) ? payload.data : [];
+    console.log("Collections extraites :", list);
 
     collections.value = list;
     cities.value = [...new Set(list.map(c => c.location?.city).filter(Boolean))];

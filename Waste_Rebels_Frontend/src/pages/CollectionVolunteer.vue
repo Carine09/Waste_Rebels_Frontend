@@ -62,75 +62,19 @@
         </div>
       </nav>
 
-      <main id="admin-panel" class="space-y-6">
+      <main id="volunteer-panel" class="space-y-6">
 
         <!-- Dashboard Content -->
         <section v-if="activeTab === 'dashboard'">
           <h2 class="sr-only">Waste collection statistics by category</h2>
           <div class="grid grid-cols-2 gap-4">
-           
-            <!-- Metal -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
+            <article v-for="(value, key) in totals" :key="key"
+              class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
               <div class="flex items-center space-x-3">
-                <img src="../assets/icons/metal_icon_light_green.png" alt="Metal icon" class="w-10 h-10">
+                <img :src="icons[key]" :alt="key + ' icon'" class="w-10 h-10">
                 <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Metal</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ totals.metal }} kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Electronic -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/electronic_icon_light_green.png" alt="Electronic icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Electronic</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ totals.electronic }} kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Glass -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/glass_icon_light_green.png" alt="Glass icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Glass</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ totals.glass }} kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Cigarette -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/cigarette_icon_light_green.png" alt="Cigarette icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Cigarettes</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ totals.cigarettes }} kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Plastic -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/plastic_icon_light_green.png" alt="Plastic icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Plastic</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ totals.plastic }} kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Other -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/other_icon_light_green.png" alt="Other icon" class="w-8 h-8">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Other</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ totals.other }} kg</p>
+                  <h3 class="text-sm font-main font-medium text-dark-blue">{{ key }}</h3>
+                  <p class="text-xs font-main text-dark-grey">{{ value }} kg</p>
                 </div>
               </div>
             </article>
@@ -166,7 +110,7 @@
                   <div>
                     <h4 class="text-sm font-main font-medium text-dark-blue">Collection #{{ col.id }}</h4>
                     <p class="text-xs font-main text-light-grey">
-                      <span class="sr-only">Location:</span>{{ col.location.city }} - 
+                      <span class="sr-only">Location:</span>{{ col.location?.city || 'Unknown' }} - 
                       <time :datetime="col.created_at">{{ new Date(col.created_at).toLocaleDateString() }}</time>
                     </p>
                   </div>
@@ -203,6 +147,13 @@ import {
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
+import iconMetal from '../assets/icons/metal_icon_light_green.png';
+import iconElectronic from '../assets/icons/electronic_icon_light_green.png';
+import iconGlass from '../assets/icons/glass_icon_light_green.png';
+import iconCigarette from '../assets/icons/cigarette_icon_light_green.png';
+import iconPlastic from '../assets/icons/plastic_icon_light_green.png';
+import iconOther from '../assets/icons/other_icon_light_green.png';
+
 const auth = useAuthStore();
 const router = useRouter();
 const logout = () => auth.logout();
@@ -217,6 +168,15 @@ const totals = ref({
   plastic: 0,
   other: 0,
 });
+
+const icons = {
+  metal: iconMetal,
+  electronic: iconElectronic,
+  glass: iconGlass,
+  cigarettes: iconCigarette,
+  plastic: iconPlastic,
+  other: iconOther,
+};
 
 // Graph data
 const chartData = computed(() => {
@@ -248,8 +208,9 @@ const chartOptions = {
       callbacks: {
         label: function (context) {
           const value = context.raw;
-          const total = context.chart._metasets[0].total;
-          const percent = ((value / total) * 100).toFixed(1);
+          const dataset = context.dataset.data;
+          const total = dataset.reduce((a, b) => a + b, 0);
+          const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
           return `${value} kg (${percent}%)`;
         }
       }
@@ -268,6 +229,7 @@ onMounted(async () => {
     const data = await response.json();
 
     if (data.success) {
+      // On ne garde que les collectes du volunteer connecté
       userCollections.value = data.data.filter(c => c.user.id === auth.userId);
 
       const sums = { metal: 0, electronic: 0, glass: 0, cigarettes: 0, plastic: 0, other: 0 };
@@ -275,7 +237,7 @@ onMounted(async () => {
         col.waste_items.forEach(item => {
           const type = item.waste_type.value;
           if (sums[type] !== undefined) {
-            sums[type] += item.amount;
+            sums[type] += Number(item.amount) || 0;
           }
         });
       });
@@ -291,6 +253,9 @@ const goToAddCollection = () => {
 };
 
 const goToViewCollection = (id) => {
-  router.push(`/volunteer/collection/view?id=${id}`);
+  router.push({
+    path: '/volunteer/collection/view',
+    query: { id }
+  });
 };
 </script>
