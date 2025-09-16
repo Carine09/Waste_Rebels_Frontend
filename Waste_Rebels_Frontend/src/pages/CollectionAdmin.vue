@@ -9,7 +9,7 @@
           <img src="../assets/logos/waste_rebels_logo.png" alt="Waste Rebels Logo" class="w-30 h-30">
           <div class="flex flex-col items-end space-y-2">
             <button 
-              type="button" 
+              @click="logout"
               class="px-4 py-2 bg-dark-blue text-white text-sm font-main font-medium rounded-md cursor-pointer"
             >
               Log out
@@ -298,6 +298,13 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useAuthStore } from '../stores/auth';
+
+const auth = useAuthStore();
+
+const logout = () => {
+  auth.logout();
+};
 
 // Reactive data
 const activeTab = ref('dashboard');

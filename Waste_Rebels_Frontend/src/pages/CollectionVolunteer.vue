@@ -9,7 +9,7 @@
           <img src="../assets/logos/waste_rebels_logo.png" alt="Waste Rebels Logo" class="w-30 h-30">
           <div class="flex flex-col items-end space-y-2">
             <button 
-              type="button" 
+              @click="logout"
               class="px-4 py-2 bg-dark-blue text-white text-sm font-main font-medium rounded-md cursor-pointer"
             >
               Log out
@@ -143,7 +143,7 @@
 <section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
   <div class="space-y-4">
           <button 
-          type="submit" 
+          @click="goToAddCollection"
           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md bg-dark-blue cursor-pointer text-sm font-medium font-main text-white"
         >
           <span>Add a collection +</span>
@@ -286,8 +286,21 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
+
+const auth = useAuthStore();
+const router = useRouter();
+const logout = () => {
+  auth.logout();
+};
 
 // Reactive data
 const activeTab = ref('dashboard');
 const selectedCity = ref('');
+
+const goToAddCollection = () => {
+  router.push('/volunteer/collection/add');
+};
+
 </script>
