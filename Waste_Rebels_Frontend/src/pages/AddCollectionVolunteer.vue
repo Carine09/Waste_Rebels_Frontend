@@ -32,9 +32,9 @@
 
             <!-- Location select -->
             <div>
-              <label for="location" class="block text-sm font-main text-dark-blue">City</label>
+              <label for="location" class="block text-sm font-main text-dark-blue mb-4">City</label>
               <select id="location" v-model="locationId" required
-                class="w-full px-4 py-2 border border-light-grey rounded-lg bg-white font-main text-sm text-dark-blue focus:outline-none focus:ring-2 focus:ring-dark-blue focus:border-transparent">
+                class="w-full px-4 py-2 border border-light-grey rounded-lg bg-white font-main text-sm text-dark-blue focus:outline-none focus:ring-2 focus:ring-dark-blue focus:border-transparent mb-4">
                 <option value="" disabled>Select a city</option>
                 <option v-for="loc in locations" :key="loc.id" :value="loc.id">
                   {{ loc.city }}
@@ -156,7 +156,7 @@
           <button 
             type="button" 
             @click="goBack"
-            class="flex items-center text-sm font-main text-dark-blue hover:underline focus:outline-none focus:underline curson-pointer">
+            class="flex items-center text-sm font-main text-dark-blue hover:underline focus:outline-none focus:underline cursor-pointer">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
