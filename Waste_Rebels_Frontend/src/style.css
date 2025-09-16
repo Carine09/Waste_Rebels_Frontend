@@ -11,10 +11,14 @@
 @theme {
     /* Colors */
     --color-dark-blue: #3d405b;
+    --color-medium-blue: #6577b5;
     --color-light-blue: #98a2c4;
+    --color-dark-green: #3e5c4d;
     --color-light-green: #709985;
+    --color-lightest-green: #b0cdbf;
     --color-dark-grey: #929191;
     --color-light-grey: #c6c2c2;
+    --color-dark-red: #a22f22;
 
     /* Font Families */
     --font-main: "Inter Regular", serif;

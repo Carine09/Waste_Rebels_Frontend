@@ -14,7 +14,6 @@ const routes = [
   { path: '/volunteer/collection', component: CollectionVolunteer },
   { path: '/volunteer/collection/add', component: AddCollectionVolunteer },
   { path: '/volunteer/collection/view', component: ViewCollectionVolunteer },
-  
 ];
 
 const router = createRouter({
