@@ -4,7 +4,6 @@
       
       <!-- Header Section -->
       <header class="space-y-6">
-        <!-- Top section with logo and logout -->
         <div class="flex justify-between items-center">
           <img src="../assets/logos/waste_rebels_logo.png" alt="Waste Rebels Logo" class="w-30 h-30">
           <div class="flex flex-col items-end space-y-2">
@@ -14,7 +13,7 @@
             >
               Log out
             </button>
-            <h1 class="mt-8 text-sm font-medium font-main text-dark-blue">Hi Léonie :)</h1>
+            <h1 class="mt-8 text-sm font-medium font-main text-dark-blue">Hi {{ auth.displayName }} :)</h1>
           </div>
         </div>
       </header>
@@ -76,7 +75,7 @@
                 <img src="../assets/icons/metal_icon_light_green.png" alt="Metal icon" class="w-10 h-10">
                 <div>
                   <h3 class="text-sm font-main font-medium text-dark-blue">Metal</h3>
-                  <p class="text-xs font-main text-dark-grey">4000 kg</p>
+                  <p class="text-xs font-main text-dark-grey">{{ totals.metal }} kg</p>
                 </div>
               </div>
             </article>
@@ -87,7 +86,7 @@
                 <img src="../assets/icons/electronic_icon_light_green.png" alt="Electronic icon" class="w-10 h-10">
                 <div>
                   <h3 class="text-sm font-main font-medium text-dark-blue">Electronic</h3>
-                  <p class="text-xs font-main text-dark-grey">3000 kg</p>
+                  <p class="text-xs font-main text-dark-grey">{{ totals.electronic }} kg</p>
                 </div>
               </div>
             </article>
@@ -97,8 +96,8 @@
               <div class="flex items-center space-x-3">
                 <img src="../assets/icons/glass_icon_light_green.png" alt="Glass icon" class="w-10 h-10">
                 <div>
-                <h3 class="text-sm font-main font-medium text-dark-blue">Glass</h3>
-                <p class="text-xs font-main text-dark-grey">6000 kg</p>
+                  <h3 class="text-sm font-main font-medium text-dark-blue">Glass</h3>
+                  <p class="text-xs font-main text-dark-grey">{{ totals.glass }} kg</p>
                 </div>
               </div>
             </article>
@@ -108,8 +107,8 @@
               <div class="flex items-center space-x-3">
                 <img src="../assets/icons/cigarette_icon_light_green.png" alt="Cigarette icon" class="w-10 h-10">
                 <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Cigarette</h3>
-                  <p class="text-xs font-main text-dark-grey">3000 kg</p>
+                  <h3 class="text-sm font-main font-medium text-dark-blue">Cigarettes</h3>
+                  <p class="text-xs font-main text-dark-grey">{{ totals.cigarettes }} kg</p>
                 </div>
               </div>
             </article>
@@ -120,7 +119,7 @@
                 <img src="../assets/icons/plastic_icon_light_green.png" alt="Plastic icon" class="w-10 h-10">
                 <div>
                   <h3 class="text-sm font-main font-medium text-dark-blue">Plastic</h3>
-                  <p class="text-xs font-main text-dark-grey">3000 kg</p>
+                  <p class="text-xs font-main text-dark-grey">{{ totals.plastic }} kg</p>
                 </div>
               </div>
             </article>
@@ -131,176 +130,167 @@
                 <img src="../assets/icons/other_icon_light_green.png" alt="Other icon" class="w-8 h-8">
                 <div>
                   <h3 class="text-sm font-main font-medium text-dark-blue">Other</h3>
-                  <p class="text-xs font-main text-dark-grey">4000 kg</p>
+                  <p class="text-xs font-main text-dark-grey">{{ totals.other }} kg</p>
                 </div>
               </div>
             </article>
+          </div>
 
+          <!-- Graphique -->
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
+            <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Waste distribution</h3>
+            <Pie :data="chartData" :options="chartOptions" />
           </div>
         </section>
 
-<!-- Waste Collection Content -->
-<section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
-  <div class="space-y-4">
-          <button 
-          @click="goToAddCollection"
-          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md bg-dark-blue cursor-pointer text-sm font-medium font-main text-white"
-        >
-          <span>Add a collection +</span>
-        </button>
-    <!-- Total Collections-->
-      <h2 id="collections-heading" class="text-sm font-main font-medium text-dark-blue">
-        Total number of waste collections : 6
-      </h2>
-
-    <!-- Collections List -->
-      <h3 class="sr-only">List of waste collections</h3>
-      <ul class="space-y-3" role="list">
-        <!-- Collection 1 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 1</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Lyon - 
-                <time datetime="2025-05-31">05/31/2025</time>
-              </p>
-            </div>
+        <!-- Waste Collection Content -->
+        <section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
+          <div class="space-y-4">
             <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 1"
+              @click="goToAddCollection"
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md bg-dark-blue cursor-pointer text-sm font-medium font-main text-white"
             >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
+              <span>Add a collection +</span>
             </button>
-          </article>
-        </li>
 
-        <!-- Collection 2 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 2</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Paris - 
-                <time datetime="2025-06-17">06/17/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 2"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
+            <!-- Total Collections-->
+            <h2 id="collections-heading" class="text-sm font-main font-medium text-dark-blue">
+              Total number of waste collections : {{ userCollections.length }}
+            </h2>
 
-        <!-- Collection 3 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 3</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Marseille - 
-                <time datetime="2025-07-14">07/14/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 3"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-
-        <!-- Collection 4 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 4</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Lyon - 
-                <time datetime="2025-09-12">09/12/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 4"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-
-        <!-- Collection 5 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 5</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Lyon - 
-                <time datetime="2025-08-15">08/15/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 5"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-
-        <!-- Collection 6 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 6</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Paris - 
-                <time datetime="2025-11-21">11/21/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 6"
-            >
-        <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-      </ul>
-  </div>
-</section>
+            <!-- Collections List -->
+            <h3 class="sr-only">List of waste collections</h3>
+            <ul class="space-y-3" role="list">
+              <li v-for="col in userCollections" :key="col.id">
+                <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
+                  <div>
+                    <h4 class="text-sm font-main font-medium text-dark-blue">Collection #{{ col.id }}</h4>
+                    <p class="text-xs font-main text-light-grey">
+                      <span class="sr-only">Location:</span>{{ col.location.city }} - 
+                      <time :datetime="col.created_at">{{ new Date(col.created_at).toLocaleDateString() }}</time>
+                    </p>
+                  </div>
+                  <button 
+                    type="button"
+                    class="p-2 rounded-md cursor-pointer"
+                    :aria-label="`View details for Collection ${col.id}`"
+                    @click="goToViewCollection(col.id)"
+                  >
+                    <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="View icon" class="w-6 h-6">
+                  </button>
+                </article>
+              </li>
+            </ul>
+          </div>
+        </section>
       </main>
-      
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
+import { Pie } from 'vue-chartjs';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+} from 'chart.js';
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 const auth = useAuthStore();
 const router = useRouter();
-const logout = () => {
-  auth.logout();
+const logout = () => auth.logout();
+
+const activeTab = ref('dashboard');
+const userCollections = ref([]);
+const totals = ref({
+  metal: 0,
+  electronic: 0,
+  glass: 0,
+  cigarettes: 0,
+  plastic: 0,
+  other: 0,
+});
+
+// Graph data
+const chartData = computed(() => {
+  const labels = Object.keys(totals.value);
+  const values = Object.values(totals.value);
+  const total = values.reduce((sum, v) => sum + v, 0);
+
+  return {
+    labels: labels.map((l, i) => {
+      const percent = total > 0 ? ((values[i] / total) * 100).toFixed(1) : 0;
+      return `${l} (${percent}%)`;
+    }),
+    datasets: [
+      {
+        data: values,
+        backgroundColor: ["#1E3A8A", "#047857", "#9333EA", "#F59E0B", "#EF4444", "#3B82F6"]
+      }
+    ]
+  };
+});
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'bottom'
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.raw;
+          const total = context.chart._metasets[0].total;
+          const percent = ((value / total) * 100).toFixed(1);
+          return `${value} kg (${percent}%)`;
+        }
+      }
+    }
+  }
 };
 
-// Reactive data
-const activeTab = ref('dashboard');
-const selectedCity = ref('');
+onMounted(async () => {
+  try {
+    const response = await fetch("http://localhost:8000/waste/collection", {
+      headers: {
+        "Authorization": `Bearer ${auth.token}`,
+        "Accept": "application/json"
+      }
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      userCollections.value = data.data.filter(c => c.user.id === auth.userId);
+
+      const sums = { metal: 0, electronic: 0, glass: 0, cigarettes: 0, plastic: 0, other: 0 };
+      userCollections.value.forEach(col => {
+        col.waste_items.forEach(item => {
+          const type = item.waste_type.value;
+          if (sums[type] !== undefined) {
+            sums[type] += item.amount;
+          }
+        });
+      });
+      totals.value = sums;
+    }
+  } catch (e) {
+    console.error("Impossible de charger les waste collections :", e);
+  }
+});
 
 const goToAddCollection = () => {
   router.push('/volunteer/collection/add');
 };
 
+const goToViewCollection = (id) => {
+  router.push(`/volunteer/collection/view?id=${id}`);
+};
 </script>

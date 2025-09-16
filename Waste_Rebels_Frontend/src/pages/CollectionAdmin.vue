@@ -1,17 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50 px-4 py-6">
     <div class="w-full max-w-sm mx-auto space-y-8">
-      
       <!-- Header Section -->
       <header class="space-y-6">
-        <!-- Top section with logo and logout -->
         <div class="flex justify-between items-center">
           <img src="../assets/logos/waste_rebels_logo.png" alt="Waste Rebels Logo" class="w-30 h-30">
           <div class="flex flex-col items-end space-y-2">
-            <button 
-              @click="logout"
-              class="px-4 py-2 bg-dark-blue text-white text-sm font-main font-medium rounded-md cursor-pointer"
-            >
+            <button @click="logout"
+              class="px-4 py-2 bg-dark-blue text-white text-sm font-main font-medium rounded-md cursor-pointer">
               Log out
             </button>
             <h1 class="mt-8 text-sm font-medium font-main text-dark-blue">Hi Admin :)</h1>
@@ -22,42 +18,22 @@
       <!-- Navigation Tabs -->
       <nav class="border-b-1 border-light-grey">
         <div class="flex justify-between items-center pb-3">
-          <button 
-            @click="activeTab = 'dashboard'"
+          <button @click="activeTab = 'dashboard'"
             :class="activeTab === 'dashboard' ? 'text-dark-blue' : 'text-light-blue'"
-            class="font-medium font-main flex items-center space-x-2 cursor-pointer"
-          >
-            <img 
-              v-if="activeTab === 'dashboard'"
-              src="../assets/icons/dashboard_icon_dark_blue.png" 
-              alt="Dashboard icon" 
-              class="w-8 h-8"
-            >
-            <img 
-              v-else
-              src="../assets/icons/dashboard_icon_light_blue.png" 
-              alt="Dashboard icon" 
-              class="w-8 h-8"
-            >
+            class="font-medium font-main flex items-center space-x-2 cursor-pointer">
+            <img v-if="activeTab === 'dashboard'" src="../assets/icons/dashboard_icon_dark_blue.png"
+              alt="Dashboard icon" class="w-8 h-8">
+            <img v-else src="../assets/icons/dashboard_icon_light_blue.png" alt="Dashboard icon" class="w-8 h-8">
             <span class="text-sm">Dashboard</span>
           </button>
-          <button 
-            @click="activeTab = 'waste-collection'"
+          <button @click="activeTab = 'waste-collection'"
             :class="activeTab === 'waste-collection' ? 'text-dark-blue' : 'text-light-blue'"
-            class="font-medium font-main flex items-center space-x-2 cursor-pointer"
-          >
-            <img 
-              v-if="activeTab === 'waste-collection'"
-              src="../assets/icons/waste_collection_management_icon_dark_blue.png" 
-              alt="Waste collection icon" 
-              class="w-8 h-8"
-            >
-            <img 
-              v-else
-              src="../assets/icons/waste_collection_management_icon_light_blue.png" 
-              alt="Waste collection icon" 
-              class="w-8 h-8"
-            >
+            class="font-medium font-main flex items-center space-x-2 cursor-pointer">
+            <img v-if="activeTab === 'waste-collection'"
+              src="../assets/icons/waste_collection_management_icon_dark_blue.png" alt="Waste collection icon"
+              class="w-8 h-8">
+            <img v-else src="../assets/icons/waste_collection_management_icon_light_blue.png"
+              alt="Waste collection icon" class="w-8 h-8">
             <span class="text-sm">Waste collection management</span>
           </button>
         </div>
@@ -69,16 +45,10 @@
           <h2 id="filter-heading" class="sr-only">Filter collection data by city</h2>
           <div class="space-y-2">
             <label for="city-filter" class="block text-dark-blue font-medium text-sm">Filter by city:</label>
-            <select 
-              id="city-filter"
-              name="city"
-              v-model="selectedCity"
-              class="w-full px-4 py-2 border border-light-grey rounded-lg bg-white font-main text-sm text-dark-blue focus:outline-none focus:ring-2 focus:ring-dark-blue focus:border-transparent"
-            >
+            <select id="city-filter" name="city" v-model="selectedCity" @change="calculateTotals"
+              class="w-full px-4 py-2 border border-light-grey rounded-lg bg-white font-main text-sm text-dark-blue focus:outline-none focus:ring-2 focus:ring-dark-blue focus:border-transparent">
               <option value="">All cities</option>
-              <option value="paris">Paris</option>
-              <option value="lyon">Lyon</option>
-              <option value="marseille">Marseille</option>
+              <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
             </select>
           </div>
         </section>
@@ -87,226 +57,231 @@
         <section v-if="activeTab === 'dashboard'">
           <h2 class="sr-only">Waste collection statistics by category</h2>
           <div class="grid grid-cols-2 gap-4">
-           
-            <!-- Metal -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
+            <!-- 6 cartes dynamiques -->
+            <article v-for="type in displayOrder" :key="type"
+              class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
               <div class="flex items-center space-x-3">
-                <img src="../assets/icons/metal_icon_light_green.png" alt="Metal icon" class="w-10 h-10">
+                <img :src="TYPES[type].icon" :alt="TYPES[type].label + ' icon'" class="w-10 h-10">
                 <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Metal</h3>
-                  <p class="text-xs font-main text-dark-grey">4000 kg</p>
+                  <h3 class="text-sm font-main font-medium text-dark-blue">{{ TYPES[type].label }}</h3>
+                  <p class="text-xs font-main text-dark-grey">{{ formatKg(totalsByType[type]) }} kg</p>
                 </div>
               </div>
             </article>
+          </div>
 
-            <!-- Electronic -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/electronic_icon_light_green.png" alt="Electronic icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Electronic</h3>
-                  <p class="text-xs font-main text-dark-grey">3000 kg</p>
-                </div>
-              </div>
-            </article>
+          <!-- Camembert graphique -->
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
+            <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Waste distribution</h3>
+            <div class="h-64">
+              <Pie :data="chartData" :options="chartOptions" />
+            </div>
+          </div>
 
-            <!-- Glass -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/glass_icon_light_green.png" alt="Glass icon" class="w-10 h-10">
-                <div>
-                <h3 class="text-sm font-main font-medium text-dark-blue">Glass</h3>
-                <p class="text-xs font-main text-dark-grey">6000 kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Cigarette -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/cigarette_icon_light_green.png" alt="Cigarette icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Cigarette</h3>
-                  <p class="text-xs font-main text-dark-grey">3000 kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Plastic -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/plastic_icon_light_green.png" alt="Plastic icon" class="w-10 h-10">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Plastic</h3>
-                  <p class="text-xs font-main text-dark-grey">3000 kg</p>
-                </div>
-              </div>
-            </article>
-
-            <!-- Other -->
-            <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
-              <div class="flex items-center space-x-3">
-                <img src="../assets/icons/other_icon_light_green.png" alt="Other icon" class="w-8 h-8">
-                <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">Other</h3>
-                  <p class="text-xs font-main text-dark-grey">4000 kg</p>
-                </div>
-              </div>
-            </article>
-
+          <!-- Graphique bars -->
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
+            <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Number of collections by city</h3>
+            <div class="h-64">
+              <Bar :data="barData" :options="barOptions" />
+            </div>
           </div>
         </section>
 
-<!-- Waste Collection Content -->
-<section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
-  <div class="space-y-4">
-    <!-- Total Collections-->
-      <h2 id="collections-heading" class="text-sm font-main font-medium text-dark-blue">
-        Total number of waste collections : 6
-      </h2>
 
-    <!-- Collections List -->
-      <h3 class="sr-only">List of waste collections</h3>
-      <ul class="space-y-3" role="list">
-        <!-- Collection 1 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 1</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Lyon - 
-                <time datetime="2025-05-31">05/31/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 1"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
 
-        <!-- Collection 2 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 2</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Paris - 
-                <time datetime="2025-06-17">06/17/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 2"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
+        <!-- Waste Collection Content -->
+        <section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
+          <div class="space-y-4">
+            <h2 id="collections-heading" class="text-sm font-main font-medium text-dark-blue">
+              Total number of waste collections : {{ collections.length }}
+            </h2>
 
-        <!-- Collection 3 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 3</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Marseille - 
-                <time datetime="2025-07-14">07/14/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 3"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-
-        <!-- Collection 4 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 4</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Lyon - 
-                <time datetime="2025-09-12">09/12/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 4"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-
-        <!-- Collection 5 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 5</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Lyon - 
-                <time datetime="2025-08-15">08/15/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 5"
-            >
-            <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-
-        <!-- Collection 6 -->
-        <li>
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
-            <div>
-              <h4 class="text-sm font-main font-medium text-dark-blue">Collection 6</h4>
-              <p class="text-xs font-main text-light-grey">
-                <span class="sr-only">Location:</span>Paris - 
-                <time datetime="2025-11-21">11/21/2025</time>
-              </p>
-            </div>
-            <button 
-              type="button"
-              class="p-2 rounded-md cursor-pointer"
-              aria-label="View details for Collection 6"
-            >
-        <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="Other icon" class="w-6 h-6">
-            </button>
-          </article>
-        </li>
-      </ul>
-  </div>
-</section>
+            <h3 class="sr-only">List of waste collections</h3>
+            <ul class="space-y-3" role="list">
+              <li v-for="col in collections" :key="col.id">
+                <article
+                  class="bg-white rounded-lg p-4 shadow-sm border border-light-grey flex justify-between items-center">
+                  <div>
+                    <h4 class="text-sm font-main font-medium text-dark-blue">Collection {{ col.id }}</h4>
+                    <p class="text-xs font-main text-light-grey">
+                      <span class="sr-only">Location:</span>{{ col.location.city }} -
+                      <time :datetime="col.created_at">{{ col.created_at }}</time>
+                    </p>
+                  </div>
+                  <button type="button" class="p-2 rounded-md cursor-pointer" aria-label="View details">
+                    <img src="../assets/icons/see_collection_icon_dark_blue.png" alt="See icon" class="w-6 h-6">
+                  </button>
+                </article>
+              </li>
+            </ul>
+          </div>
+        </section>
       </main>
-      
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 
+import { Pie, Bar } from 'vue-chartjs';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js';
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
+
+import iconMetal from '../assets/icons/metal_icon_light_green.png';
+import iconElectronic from '../assets/icons/electronic_icon_light_green.png';
+import iconGlass from '../assets/icons/glass_icon_light_green.png';
+import iconCigarette from '../assets/icons/cigarette_icon_light_green.png';
+import iconPlastic from '../assets/icons/plastic_icon_light_green.png';
+import iconOther from '../assets/icons/other_icon_light_green.png';
+
 const auth = useAuthStore();
+const logout = () => auth.logout();
 
-const logout = () => {
-  auth.logout();
-};
-
-// Reactive data
 const activeTab = ref('dashboard');
 const selectedCity = ref('');
+const collections = ref([]);
+
+const TYPES = {
+  glass:             { label: 'Glass',        icon: iconGlass },
+  cigarettes:        { label: 'Cigarettes',   icon: iconCigarette },
+  metal_waste:       { label: 'Metal',        icon: iconMetal },
+  electronic_waste:  { label: 'Electronic',   icon: iconElectronic },
+  plastic:           { label: 'Plastic',      icon: iconPlastic },
+  others:            { label: 'Other',        icon: iconOther },
+};
+const displayOrder = ['glass','cigarettes','metal_waste','electronic_waste','others','plastic'];
+
+const totalsByType = ref(Object.fromEntries(Object.keys(TYPES).map(k => [k, 0])));
+const cities = ref([]);
+
+
+const chartData = ref({
+  labels: [],
+  datasets: [{
+    data: [],
+    backgroundColor: ['#4f6d7a','#56a3a6','#c0d6df','#dbe9ee','#7fb685','#dad873']
+  }]
+});
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom' },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.raw;
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+          return `${value} kg (${percent}%)`;
+        }
+      }
+    }
+  }
+};
+
+// Données du Bar chart
+const barData = ref({
+  labels: [],
+  datasets: [{
+    label: 'Collections',
+    data: [],
+    backgroundColor: ['#9CA3AF', '#10B981', '#1E3A8A', '#F59E0B', '#9333EA']
+  }]
+});
+
+const barOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: true, position: 'top' }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { stepSize: 1 }
+    }
+  }
+};
+
+function formatKg(n) {
+  const v = Number(n || 0);
+  return v % 1 === 0 ? v.toString() : v.toFixed(1);
+}
+
+function calculateTotals() {
+  const base = Object.fromEntries(Object.keys(TYPES).map(k => [k, 0]));
+  const filtered = selectedCity.value
+    ? collections.value.filter(c => c.location.city === selectedCity.value)
+    : collections.value;
+
+  // Totaux par type
+  for (const col of filtered) {
+    for (const item of col.waste_items) {
+      const key = item.waste_type.value;
+      if (key in base) base[key] += Number(item.amount) || 0;
+    }
+  }
+  totalsByType.value = base;
+
+  // Mise à jour du Pie chart
+  chartData.value = {
+    labels: displayOrder.map(k => TYPES[k].label),
+    datasets: [{
+      data: displayOrder.map(k => Number(base[k].toFixed(2))),
+      backgroundColor: ['#4f6d7a','#56a3a6','#c0d6df','#dbe9ee','#7fb685','#dad873']
+    }]
+  };
+
+  // Mise à jour du Bar chart -> total des collectes par ville
+  const counts = {};
+  for (const col of filtered) {
+    const city = col.location?.city || 'Unknown';
+    counts[city] = (counts[city] || 0) + 1;
+  }
+
+  barData.value = {
+    labels: Object.keys(counts),
+    datasets: [{
+      label: 'Collections',
+      data: Object.values(counts),
+      backgroundColor: ['#9CA3AF', '#10B981', '#1E3A8A', '#F59E0B', '#9333EA']
+    }]
+  };
+}
+
+onMounted(async () => {
+  try {
+    const res = await fetch('http://localhost:8000/waste/collection', {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        Accept: 'application/json'
+      }
+    });
+    const payload = await res.json();
+
+    const list = Array.isArray(payload) ? payload
+      : payload?.data && Array.isArray(payload.data) ? payload.data
+        : [];
+
+    collections.value = list;
+    cities.value = [...new Set(list.map(c => c.location?.city).filter(Boolean))];
+    calculateTotals();
+  } catch (e) {
+    console.error('Error loading collections:', e);
+  }
+});
 </script>
