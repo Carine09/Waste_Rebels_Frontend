@@ -68,22 +68,24 @@
         <section v-if="activeTab === 'dashboard'">
           <h2 class="sr-only">Waste collection statistics by category</h2>
           <div class="grid grid-cols-2 gap-4">
-            <article v-for="(value, key) in totals" :key="key"
+            <article v-for="type in displayOrder" :key="type"
               class="bg-white rounded-lg p-4 shadow-sm border border-light-grey">
               <div class="flex items-center space-x-3">
-                <img :src="icons[key]" :alt="key + ' icon'" class="w-10 h-10">
+                <img :src="TYPES[type].icon" :alt="TYPES[type].label + ' icon'" class="w-10 h-10">
                 <div>
-                  <h3 class="text-sm font-main font-medium text-dark-blue">{{ key }}</h3>
-                  <p class="text-xs font-main text-dark-grey">{{ value }} kg</p>
+                  <h3 class="text-sm font-main font-medium text-dark-blue">{{ TYPES[type].label }}</h3>
+                  <p class="text-xs font-main text-dark-grey">{{ totals[type] }} kg</p>
                 </div>
               </div>
             </article>
           </div>
 
-          <!-- Graphique -->
+          <!-- Pie chart with consistent sizing -->
           <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
             <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Waste distribution</h3>
-            <Pie :data="chartData" :options="chartOptions" />
+            <div class="h-64">
+              <Pie :data="chartData" :options="chartOptions" />
+            </div>
           </div>
         </section>
 
@@ -160,14 +162,20 @@ const logout = () => auth.logout();
 
 const activeTab = ref('dashboard');
 const userCollections = ref([]);
-const totals = ref({
-  metal: 0,
-  electronic: 0,
-  glass: 0,
-  cigarettes: 0,
-  plastic: 0,
-  other: 0,
-});
+// Use the same structure as admin for consistency
+const TYPES = {
+  glass: { label: 'Glass', icon: iconGlass },
+  cigarettes: { label: 'Cigarettes', icon: iconCigarette },
+  metal_waste: { label: 'Metal', icon: iconMetal },
+  electronic_waste: { label: 'Electronic', icon: iconElectronic },
+  others: { label: 'Other', icon: iconOther },
+  plastic: { label: 'Plastic', icon: iconPlastic },
+};
+
+// Same order as admin to maintain color consistency
+const displayOrder = ['glass', 'cigarettes', 'metal_waste', 'electronic_waste', 'others', 'plastic'];
+
+const totals = ref(Object.fromEntries(Object.keys(TYPES).map(k => [k, 0])));
 
 const icons = {
   metal: iconMetal,
@@ -178,21 +186,18 @@ const icons = {
   other: iconOther,
 };
 
-// Graph data
+// Graph data with consistent color mapping
 const chartData = computed(() => {
-  const labels = Object.keys(totals.value);
-  const values = Object.values(totals.value);
+  const labels = displayOrder.map(k => TYPES[k].label);
+  const values = displayOrder.map(k => totals.value[k]);
   const total = values.reduce((sum, v) => sum + v, 0);
 
   return {
-    labels: labels.map((l, i) => {
-      const percent = total > 0 ? ((values[i] / total) * 100).toFixed(1) : 0;
-      return `${l} (${percent}%)`;
-    }),
+    labels: labels,
     datasets: [
       {
         data: values,
-        backgroundColor: ["#1E3A8A", "#047857", "#9333EA", "#F59E0B", "#EF4444", "#3B82F6"]
+        backgroundColor: ['#3d405b', '#6577b5', '#98a2c4', '#3e5c4d', '#709985', '#b0cdbf']
       }
     ]
   };
@@ -200,16 +205,53 @@ const chartData = computed(() => {
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
-    legend: {
-      position: 'bottom'
+    legend: { 
+      position: 'bottom',
+      labels: {
+        generateLabels: function(chart) {
+          const data = chart.data;
+          if (data.labels.length && data.datasets.length) {
+            const dataset = data.datasets[0];
+            const total = dataset.data.reduce((a, b) => a + b, 0);
+            
+            return data.labels.map((label, i) => {
+              const value = dataset.data[i];
+              const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              
+              return {
+                text: `${label}: ${percent}%`,
+                fillStyle: dataset.backgroundColor[i],
+                strokeStyle: 'transparent',
+                lineWidth: 0,
+                hidden: false,
+                index: i
+              };
+            });
+          }
+          return [];
+        },
+        usePointStyle: true,
+        padding: 20,
+        boxWidth: 12,
+        font: {
+          size: 11
+        }
+      },
+      maxWidth: 400,
+      align: 'center',
+      layout: {
+        padding: {
+          top: 10
+        }
+      }
     },
     tooltip: {
       callbacks: {
         label: function (context) {
           const value = context.raw;
-          const dataset = context.dataset.data;
-          const total = dataset.reduce((a, b) => a + b, 0);
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
           const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
           return `${value} kg (${percent}%)`;
         }
@@ -232,16 +274,19 @@ onMounted(async () => {
       // On ne garde que les collectes du volunteer connecté
       userCollections.value = data.data.filter(c => c.user.id === auth.userId);
 
-      const sums = { metal: 0, electronic: 0, glass: 0, cigarettes: 0, plastic: 0, other: 0 };
+      // Calculate totals using same structure as admin
+      const base = Object.fromEntries(Object.keys(TYPES).map(k => [k, 0]));
+      
       userCollections.value.forEach(col => {
         col.waste_items.forEach(item => {
-          const type = item.waste_type.value;
-          if (sums[type] !== undefined) {
-            sums[type] += Number(item.amount) || 0;
+          const key = item.waste_type.value;
+          if (key in base) {
+            base[key] += Number(item.amount) || 0;
           }
         });
       });
-      totals.value = sums;
+      
+      totals.value = base;
     }
   } catch (e) {
     console.error("Impossible de charger les waste collections :", e);

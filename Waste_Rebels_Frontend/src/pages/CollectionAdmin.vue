@@ -70,7 +70,7 @@
             </article>
           </div>
 
-          <!-- Camembert graphique -->
+          <!-- Pie chart -->
           <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
             <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Waste distribution</h3>
             <div class="h-64">
@@ -78,16 +78,14 @@
             </div>
           </div>
 
-          <!-- Graphique bars -->
+          <!-- Bar chart -->
           <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
-            <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Number of collections by city</h3>
+            <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Number of waste collections by city</h3>
             <div class="h-64">
               <Bar :data="barData" :options="barOptions" />
             </div>
           </div>
         </section>
-
-
 
         <!-- Waste Collection Content -->
         <section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
@@ -186,7 +184,7 @@ const chartData = ref({
   labels: [],
   datasets: [{
     data: [],
-    backgroundColor: ['#4f6d7a', '#56a3a6', '#c0d6df', '#dbe9ee', '#7fb685', '#dad873']
+    backgroundColor: ['#3d405b', '#6577b5', '#98a2c4', '#3e5c4d', '#709985', '#b0cdbf']
   }]
 });
 
@@ -194,7 +192,46 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'bottom' },
+    legend: { 
+      position: 'bottom',
+      labels: {
+        generateLabels: function(chart) {
+          const data = chart.data;
+          if (data.labels.length && data.datasets.length) {
+            const dataset = data.datasets[0];
+            const total = dataset.data.reduce((a, b) => a + b, 0);
+            
+            return data.labels.map((label, i) => {
+              const value = dataset.data[i];
+              const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              
+              return {
+                text: `${label}: ${percent}%`,
+                fillStyle: dataset.backgroundColor[i],
+                strokeStyle: 'transparent',
+                lineWidth: 0,
+                hidden: false,
+                index: i
+              };
+            });
+          }
+          return [];
+        },
+        usePointStyle: true,
+        padding: 20,
+        boxWidth: 12,
+        font: {
+          size: 11
+        }
+      },
+      maxWidth: 400,
+      align: 'center',
+      layout: {
+        padding: {
+          top: 10
+        }
+      }
+    },
     tooltip: {
       callbacks: {
         label: function (context) {
@@ -214,7 +251,7 @@ const barData = ref({
   datasets: [{
     label: 'Collections',
     data: [],
-    backgroundColor: ['#9CA3AF', '#10B981', '#1E3A8A', '#F59E0B', '#9333EA']
+    backgroundColor: ['#3d405b', '#6577b5', '#3e5c4d']
   }]
 });
 
@@ -222,7 +259,7 @@ const barOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { display: true, position: 'top' }
+    legend: { display: false}
   },
   scales: {
     y: {
@@ -257,7 +294,7 @@ function calculateTotals() {
     labels: displayOrder.map(k => TYPES[k].label),
     datasets: [{
       data: displayOrder.map(k => Number(base[k].toFixed(2))),
-      backgroundColor: ['#4f6d7a', '#56a3a6', '#c0d6df', '#dbe9ee', '#7fb685', '#dad873']
+      backgroundColor: ['#3d405b', '#6577b5', '#98a2c4', '#3e5c4d', '#709985', '#b0cdbf']
     }]
   };
 
@@ -273,7 +310,7 @@ function calculateTotals() {
     datasets: [{
       label: 'Collections',
       data: Object.values(counts),
-      backgroundColor: ['#9CA3AF', '#10B981', '#1E3A8A', '#F59E0B', '#9333EA']
+      backgroundColor: ['#3d405b', '#6577b5', '#3e5c4d']
     }]
   };
 }

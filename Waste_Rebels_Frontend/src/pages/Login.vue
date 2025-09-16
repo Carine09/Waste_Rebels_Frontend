@@ -29,7 +29,7 @@
               required
               :class="[
                 'block w-full px-0 py-3 border-0 border-b bg-transparent text-sm font-main focus:outline-none focus:ring-0',
-                error ? 'border-red-500 text-red-600' : 'border-dark-blue text-dark-blue'
+                error ? 'border-dark-red text-dark-red' : 'border-dark-blue text-dark-blue'
               ]"
             >
           </div>
@@ -44,13 +44,13 @@
               required
               :class="[
                 'block w-full px-0 py-3 border-0 border-b bg-transparent text-sm font-main focus:outline-none focus:ring-0',
-                error ? 'border-red-500 text-red-600' : 'border-dark-blue text-dark-blue'
+                error ? 'border-dark-red text-dark-red' : 'border-dark-blue text-dark-blue'
               ]"
             >
           </div>
 
           <!-- Error Message -->
-          <p v-if="error" class="text-red-500 text-sm text-center">
+          <p v-if="error" class="text-dark-red text-sm text-center">
             Invalid email or password.
           </p>
 
@@ -93,7 +93,7 @@ const login = async () => {
     }
 
     const data = await response.json();
-    console.log("🔍 Réponse API:", data);
+    console.log("API response:", data);
 
     // Stockage dans le store
     auth.setToken(data.token);

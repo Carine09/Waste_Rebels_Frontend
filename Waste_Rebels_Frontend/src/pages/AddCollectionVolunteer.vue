@@ -133,10 +133,10 @@
             </div>
 
             <!-- Messages success or failed-->
-            <div v-if="success" class="text-green-600 text-sm font-main font-medium">
+            <div v-if="success" class="text-light-green text-sm font-main font-medium">
               Your collection has been registered
             </div>
-            <div v-if="error" class="text-red-600 text-sm font-main font-medium">
+            <div v-if="error" class="text-dark-red text-sm font-main font-medium">
               Your registration failed
             </div>
 
@@ -219,7 +219,7 @@ onMounted(async () => {
       locations.value = data.data;
     }
   } catch (e) {
-    console.error("Impossible de charger les locations :", e);
+    console.error("Failed to load locations :", e);
   }
 });
 
@@ -249,14 +249,14 @@ const handleSubmit = async () => {
     });
 
     const data = await response.json();
-    console.log("🔍 Réponse API:", data);
+    console.log("API response:", data);
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to create collection");
     }
 
     success.value = "Waste collection created successfully!";
-    console.log("✅ Collection créée :", data);
+    console.log("Collection created :", data);
 
   } catch (e) {
     error.value = e.message;

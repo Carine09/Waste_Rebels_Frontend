@@ -73,7 +73,7 @@
         </nav>
       </main>
 
-      <p v-else class="text-center text-sm text-dark-blue">Loading collection...</p>
+      <p v-else class="text-center text-sm text-dark-blue">Loading waste collection details...</p>
     </div>
   </div>
 </template>
@@ -95,7 +95,7 @@ const router = useRouter();
 const route = useRoute();
 
 const logout = () => auth.logout();
-const goBack = () => router.push("/volunteer"); // vers ta homepage volunteer
+const goBack = () => router.push("/volunteer/collection");
 
 // mapping icônes
 const icons = {
@@ -138,10 +138,10 @@ onMounted(async () => {
     if (payload.success) {
       collection.value = payload.data;
     } else {
-      console.error("Erreur API :", payload.message);
+      console.error("API Error :", payload.message);
     }
   } catch (e) {
-    console.error("Impossible de charger la collection :", e);
+    console.error("Failed to load collection :", e);
   }
 });
 </script>
