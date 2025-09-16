@@ -79,8 +79,6 @@
               </div>
             </article>
           </div>
-        </section>
-
           <!-- Pie chart with consistent sizing -->
           <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">
             <h3 class="text-sm font-main font-medium text-dark-blue mb-4">Waste distribution</h3>
@@ -89,6 +87,7 @@
             </div>
           </div>
         </section>
+
 
         <!-- Waste Collection Content -->
         <section v-else-if="activeTab === 'waste-collection'" aria-labelledby="collections-heading">
