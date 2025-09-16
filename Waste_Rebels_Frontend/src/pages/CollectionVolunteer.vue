@@ -79,6 +79,7 @@
               </div>
             </article>
           </div>
+        </section>
 
           <!-- Pie chart with consistent sizing -->
           <div class="bg-white rounded-lg p-4 shadow-sm border border-light-grey mt-6">

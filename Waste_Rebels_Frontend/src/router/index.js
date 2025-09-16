@@ -10,8 +10,8 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
   { path: '/admin/collection', component: CollectionAdmin },
-  { path: '/volunteer/collection', component: CollectionVolunteer },
   { path: '/admin/collection/view', component: ViewCollectionAdmin },
+  { path: '/volunteer/collection', component: CollectionVolunteer },
   { path: '/volunteer/collection/add', component: AddCollectionVolunteer },
   { path: '/volunteer/collection/view', component: ViewCollectionVolunteer },
 ];

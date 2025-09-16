@@ -78,7 +78,6 @@
           </button>
         </nav>
       </main>
-
       <p v-else class="text-center text-sm text-dark-blue">Loading waste collection details...</p>
     </div>
   </div>
